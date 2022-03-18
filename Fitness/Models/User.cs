@@ -16,6 +16,5 @@ namespace Fitness.Models
         [Required(ErrorMessage = "Введите отчество")]
         [Display(Name = "Отчество")]
         public string Patronymic { get; set; }
-        public object Year { get; internal set; }
     }
 }
