@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace EducateApp.ViewModels.Account
+namespace Fitness.ViewModels.Account
 {
     public class LoginViewModel
     {

@@ -1,4 +1,4 @@
-﻿using EducateApp.ViewModels.Account;
+﻿using Fitness.ViewModels.Account;
 using Fitness.Models;
 using Fitness.ViewsModels;
 using Microsoft.AspNetCore.Identity;
