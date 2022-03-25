@@ -1,0 +1,147 @@
+﻿@model Fitness.ViewModels.Trainers.IndexTrainersViewModel
+
+@{
+    ViewData["Title"] = "Тренера";
+}
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Главная</a></li>
+        <li class="breadcrumb-item active">Тренера</li>
+    </ol>
+</nav>
+<h2>Тренера</h2>
+
+<div class="d-flex justify-content-between">
+    <div class="p-2">
+        <ul class="nav">
+            <li>
+                <a class="btn text-dark" asp-action="Create">
+                    <i class="far fa-plus-square"></i>  Добавить Тренера
+                </a>
+            </li>
+        </ul>
+    </div>
+    <div class="p-2">
+        <form class="form-inline" asp-action="Index" method="get">
+            <div class="form-actions no-color">
+                <p>
+                    <input type="text" name="LastName" placeholder="Фамилия" value="@Model.FilterTrainersViewModel.SelectedLastName" class="form-control" />
+                    <input type="text" name="FirstName" placeholder="Имя" value="@Model.FilterTrainersViewModel.SelectedFirstName" class="form-control" />
+                    <input type="text" name="Patronymic" placeholder="Отчество" value="@Model.FilterTrainersViewModel.SelectedPatronymic" class="form-control" />
+
+                    <input type="submit" value="Поиск" class="btn btn-outline-success" /> |
+                    <a class="=btn text-dark" asp-action="Index"><i class="fas fa-eraser"></i></a>
+                </p>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-bordered text-nowrap table-sm">
+        <thead class="thead-light">
+            <tr>
+                <th>
+                    <a asp-action="Index"
+                       asp-route-sortOrder="@(Model.SortTrainersViewModel.LastNameSort)"
+                       asp-route-LastName="@(Model.FilterTrainersViewModel.SelectedLastName)"
+                       asp-route-FirstName="@(Model.FilterTrainersViewModel.SelectedFirstName)"
+                       asp-route-Patronymic="@(Model.FilterTrainersViewModel.SelectedPatronymic)">Фамилия</a>
+                </th>
+                <th>
+                    <a asp-action="Index"
+                       asp-route-sortOrder="@(Model.SortTrainersViewModel.FirstNameSort)"
+                       asp-route-LastName="@(Model.FilterTrainersViewModel.SelectedLastName)"
+                       asp-route-FirstName="@(Model.FilterTrainersViewModel.SelectedFirstName)"
+                       asp-route-Patronymic="@(Model.FilterTrainersViewModel.SelectedPatronymic)">Имя</a>
+                </th>
+                <th>
+                    <a asp-action="Index"
+                       asp-route-sortOrder="@(Model.SortTrainersViewModel.PatronymicSort)"
+                       asp-route-LastName="@(Model.FilterTrainersViewModel.SelectedLastName)"
+                       asp-route-FirstName="@(Model.FilterTrainersViewModel.SelectedFirstName)"
+                       asp-route-Patronymic="@(Model.FilterTrainersViewModel.SelectedPatronymic)">Отчество</a>
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Trainers)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.LastName)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.FirstName)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Patronymic)
+                    </td>
+                    <td>
+                        <a class="btn text-dark" asp-action="Details" asp-route-id="@item.Id" title="Посмотреть подробнее">
+                            <i class="far fa-eye"></i>
+                        </a> |
+                        <a class="btn text-dark" asp-action="Edit" asp-route-id="@item.Id" title="Редактировать">
+                            <i class="fas fa-pencil-alt"></i>
+                        </a> |
+                        <a class="btn text-dark" asp-action="Delete" asp-route-id="@item.Id" title="Удалить">
+                            <i class="far fa-minus-square"></i>
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<nav>
+    <ul class="pagination justify-content-center">
+        @if (Model.PageViewModel.HasPreviousPage || Model.PageViewModel.HasNextPage)
+        {
+            @if (Model.PageViewModel.HasPreviousPage)
+            {
+                <li class="page-item">
+                    <a class="page-link" asp-action="Index" title="Назад"
+                       asp-route-page="@(Model.PageViewModel.PageNumber - 1)"
+                       asp-route-sortOrder="@(Model.SortTrainersViewModel.Current)"
+                       asp-route-LastName="@(Model.FilterTrainersViewModel.SelectedLastName)"
+                       asp-route-FirstName="@(Model.FilterTrainersViewModel.SelectedFirstName)"
+                       asp-route-Patronymic="@(Model.FilterTrainersViewModel.SelectedPatronymic)">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                </li>
+            }
+            else
+            {
+                <li class="page-item disabled">
+                    <a class="page-link" href="#">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                </li>
+            }
+            @if (Model.PageViewModel.HasNextPage)
+            {
+                <li class="page-item">
+                    <a class="page-link" asp-action="Index" title="Вперед"
+                       asp-route-page="@(Model.PageViewModel.PageNumber + 1)"
+                       asp-route-sortOrder="@(Model.SortTrainersViewModel.Current)"
+                       asp-route-LastName="@(Model.FilterTrainersViewModel.SelectedLastName)"
+                       asp-route-FirstName="@(Model.FilterTrainersViewModel.SelectedFirstName)"
+                       asp-route-Patronymic="@(Model.FilterTrainersViewModel.SelectedPatronymic)">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                </li>
+            }
+            else
+            {
+                <li class="page-item disabled">
+                    <a class="page-link" href="#">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                </li>
+            }
+        }
+    </ul>
+</nav>

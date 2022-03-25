@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using Fitness.Models.Data;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fitness.Models
@@ -10,5 +11,8 @@ namespace Fitness.Models
         {
             Database.EnsureCreated();
         }
+
+        public DbSet<Trainers> Trainerses { get; set; }
+
     }
 }
