@@ -12,7 +12,7 @@ namespace Fitness.Models
             Database.EnsureCreated();
         }
 
-        public DbSet<Trainers> Trainerses { get; set; }
+        public DbSet<Trainer> Trainerses { get; set; }
 
     }
 }

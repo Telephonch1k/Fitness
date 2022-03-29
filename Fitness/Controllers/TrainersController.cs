@@ -4,7 +4,6 @@ using Fitness.ViewModels.Trainers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
@@ -24,20 +23,16 @@ namespace Fitness.Controllers
             _userManager = user;
         }
 
-       /*
+       
         // GET: Trainers
         public async Task<IActionResult> Index(string LastName, string FirstName, string Patronymic,
             int page = 1,
             TrainersSortState sortOrder = TrainersSortState.LastNameAsc)
         {
-            IdentityUser user = await _userManager.FindByNameAsync(HttpContext.User.Identity.Name);
-
             int pageSize = 15;
 
             //фильтрация
-            IQueryable<Trainers> Trainerses = _context.Trainerses
-                .Include(s => s.Patronymic)                    
-                .Where(w => w.Patronymic.IdUser == user.Id);    
+            IQueryable<Trainer> Trainerses = _context.Trainerses;    
 
 
             if (!String.IsNullOrEmpty(LastName))
@@ -87,63 +82,49 @@ namespace Fitness.Controllers
                 PageViewModel = new(count, page, pageSize),
                 SortTrainersViewModel = new(sortOrder),
                 FilterTrainersViewModel = new(LastName, FirstName, Patronymic),
-                Trainers = (System.Collections.Generic.IEnumerable<TrainersSortState>)items
+                Trainers = items
             };
             return View(viewModel);
         }
-       */
+       
 
         // GET: Trainers/Create
         public async Task<IActionResult> CreateAsync()
-        {
-            IdentityUser user = await _userManager.FindByNameAsync(HttpContext.User.Identity.Name);
-
-            // при отображении страницы заполняем элемент "выпадающий список" формами обучения
-            // при этом указываем, что в качестве идентификатора используется поле "Id"
-            // а отображать пользователю нужно поле "FormOfEdu" - название формы обучения
-            ViewData["IdFormOfStudy"] = new SelectList(_context.FormsOfStudy
-                .Where(w => w.IdUser == user.Id), "Id", "FormOfEdu");
+        {            
             return View();
         }
 
         // POST: Trainers/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(CreateSpecialtyViewModel model)
+        public async Task<IActionResult> Create(CreateTrainersViewModel model)
         {
             IdentityUser user = await _userManager.FindByNameAsync(HttpContext.User.Identity.Name);
 
-            if (_context.Specialties
-                .Where(f => f.FormOfStudy.IdUser == user.Id &&
-                    f.Code == model.Code &&
-                    f.Name == model.Name &&
-                    f.IdFormOfStudy == model.IdFormOfStudy)
+            if (_context.Trainerses
+                .Where(f => f.LastName== model.LastName &&
+                    f.FirstName == model.FirstName &&
+                    f.Patronymic == model.Patronymic)
                 .FirstOrDefault() != null)
             {
-                ModelState.AddModelError("", "Введеная специальность уже существует");
+                ModelState.AddModelError("", "Введеный тренер уже существует");
             }
 
             if (ModelState.IsValid)
             {
                 // если введены корректные данные,
                 // то создается экземпляр класса модели Specialty, т.е. формируется запись в таблицу Specialties
-                Specialty specialty = new()
+                Trainer trainer = new()
                 {
-                    Code = model.Code,
-                    Name = model.Name,
-
-                    // с помощью свойства модели получим идентификатор выбранной формы обучения пользователем
-                    IdFormOfStudy = model.IdFormOfStudy
+                    LastName= model.LastName,
+                    FirstName = model.FirstName,
+                    Patronymic=model.Patronymic
                 };
 
-                _context.Add(specialty);
+                _context.Add(trainer);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-
-            ViewData["IdFormOfStudy"] = new SelectList(
-                _context.FormsOfStudy.Where(w => w.IdUser == user.Id),
-                "Id", "FormOfEdu", model.IdFormOfStudy);
             return View(model);
         }
 
@@ -155,65 +136,57 @@ namespace Fitness.Controllers
                 return NotFound();
             }
 
-            var specialty = await _context.Specialties.FindAsync(id);
-            if (specialty == null)
+            var trainer = await _context.Trainerses.FindAsync(id);
+            if (trainer == null)
             {
                 return NotFound();
             }
-            EditSpecialtyViewModel model = new()
+
+            EditTrainersViewModel model = new()
             {
-                Id = specialty.Id,
-                Code = specialty.Code,
-                Name = specialty.Name,
-                IdFormOfStudy = specialty.IdFormOfStudy
-            };
-
-            IdentityUser user = await _userManager.FindByNameAsync(HttpContext.User.Identity.Name);
-
-            // в списке в качестве текущего элемента устанавливаем значение из базы данных,
-            // указываем параметр specialty.IdFormOfStudy
-            ViewData["IdFormOfStudy"] = new SelectList(
-                _context.FormsOfStudy.Where(w => w.IdUser == user.Id),
-                "Id", "FormOfEdu", specialty.IdFormOfStudy);
+                Id = trainer.Id,
+                LastName= trainer.LastName,
+                FirstName= trainer.FirstName,
+                Patronymic = trainer.Patronymic
+            };            
+            
             return View(model);
         }
 
         // POST: Trainers/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(short id, EditSpecialtyViewModel model)
+        public async Task<IActionResult> Edit(short id, EditTrainersViewModel model)
         {
-            Specialty specialty = await _context.Specialties.FindAsync(id);
+            Trainer trainer = await _context.Trainerses.FindAsync(id);
 
-            if (id != specialty.Id)
+            if (id != trainer.Id)
             {
                 return NotFound();
             }
-
-            IdentityUser user = await _userManager.FindByNameAsync(HttpContext.User.Identity.Name);
-            if (_context.Specialties
-                .Where(f => f.FormOfStudy.IdUser == user.Id &&
-                    f.Code == model.Code &&
-                    f.Name == model.Name &&
-                    f.IdFormOfStudy == model.IdFormOfStudy)
+            
+            if (_context.Trainerses
+                .Where(f => f.LastName == model.LastName &&
+                    f.FirstName == model.FirstName &&
+                    f.Patronymic == model.Patronymic)
                 .FirstOrDefault() != null)
             {
-                ModelState.AddModelError("", "Введеная специальность уже существует");
+                ModelState.AddModelError("", "Введеный тренер уже существует");
             }
 
             if (ModelState.IsValid)
             {
                 try
                 {
-                    specialty.Code = model.Code;
-                    specialty.Name = model.Name;
-                    specialty.IdFormOfStudy = model.IdFormOfStudy;
-                    _context.Update(specialty);
+                    trainer.LastName = model.LastName;
+                    trainer.FirstName = model.FirstName;
+                    trainer.Patronymic = model.Patronymic;
+                    _context.Update(trainer);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!SpecialtyExists(specialty.Id))
+                    if (!TrainerExists(trainer.Id))
                     {
                         return NotFound();
                     }
@@ -235,15 +208,15 @@ namespace Fitness.Controllers
                 return NotFound();
             }
 
-            var specialty = await _context.Specialties
-                .Include(s => s.FormOfStudy)
+            var trainer = await _context.Trainerses                
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (specialty == null)
+
+            if (trainer == null)
             {
                 return NotFound();
             }
 
-            return View(specialty);
+            return View(trainer);
         }
 
         // POST: Trainers/Delete/5
@@ -251,8 +224,8 @@ namespace Fitness.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(short id)
         {
-            var specialty = await _context.Specialties.FindAsync(id);
-            _context.Specialties.Remove(specialty);
+            var trainer = await _context.Trainerses.FindAsync(id);
+            _context.Trainerses.Remove(trainer);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
@@ -265,20 +238,20 @@ namespace Fitness.Controllers
                 return NotFound();
             }
 
-            var specialty = await _context.Specialties
-                .Include(s => s.FormOfStudy)
+            var trainer = await _context.Trainerses                
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (specialty == null)
+
+            if (trainer == null)
             {
                 return NotFound();
             }
 
-            return View(specialty);
+            return View(trainer);
         }
 
-        private bool SpecialtyExists(short id)
+        private bool TrainerExists(short id)
         {
-            return _context.Specialties.Any(e => e.Id == id);
+            return _context.Trainerses.Any(e => e.Id == id);
         }
     }
 }

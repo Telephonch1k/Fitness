@@ -6,7 +6,7 @@ namespace Fitness.ViewModels.Trainers
 {
     public class IndexTrainersViewModel
     {
-        public IEnumerable<TrainersSortState> Trainers { get; set; }
+        public IEnumerable<Trainer> Trainers { get; set; }
         public PageViewModel PageViewModel { get; set; }
         public FilterTrainersViewModel FilterTrainersViewModel { get; set; }
         public SortTrainersViewModel SortTrainersViewModel { get; set; }
